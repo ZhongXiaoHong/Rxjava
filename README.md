@@ -31,5 +31,76 @@
 1. **subscribeOn(Schedulers.io())**  表示这句代码以上的代码运行在io线程中
 2. **observeOn(AndroidSchedulers.mainThread())**  表示这句代码以下的代码运行在主线程
 
-[^注意]: 以上代码都在RxJavaDemo工程
 
+
+> Rxjava 编程有什么好处
+
+从上面例子看到，相较于传统方式实现，RX方式思维更加直观连续，成链式，一步接一步，这样在处理需求变更更很有好处，举个例子：比如现在图片从网络下载后要加水印再显示，使用Rx方式则很轻松如下：
+
+![624024](image/624024.png)
+
+只需要增加上图红色圈中的部分，整个思维十分清晰
+
+
+
+> 封装 .subscribeOn(Scheduler.io()).observeOn(AndroidSchedulers.mainThread())
+
+```java
+ .subscribeOn(Scheduler.io())
+ .observeOn(AndroidSchedulers.mainThread())
+```
+
+上面这个代码在指定线程时候会经常用到，每次都要这么写挺麻烦，可以使用ObservableTransformer来封装，如下：
+
+```java
+public static <UD>ObservableTransformer<UD,UD> rxdu() {
+    return new ObservableTransformer<UD,UD>() {
+        @Override
+        public ObservableSource<UD> apply(Observable<UD> upstream) {
+            return upstream.subscribeOn(Schedulers.io())//TODO 表示上面一节运行在io线程
+                    .observeOn(AndroidSchedulers.mainThread());//TODO  下面一节运行在MainThread
+        }
+    };
+}
+```
+
+**如何使用?**需要配合compose,如下：
+
+![624036](image/624036.png)
+
+
+
+> Consumer 与 Observer
+
+```java
+public interface Consumer<T> {
+ 
+    void accept(T t) throws Exception;
+}
+```
+
+
+
+```java
+public interface Observer<T> {
+
+    void onSubscribe(@NonNull Disposable d);
+
+    void onNext(@NonNull T t);
+
+    void onError(@NonNull Throwable e);
+
+    void onComplete();
+
+}
+```
+
+对比可以看到Consumer的accept相当于observer的onNext,observer还有其他状态的回调，比如onSubscribe表示事件预备发送时还没发送前，onComplete表示事件结束，onError表示回调，所以当我们需要展示进度条之类的需求时应该选择Observer，如果不关心出错等其他状态只关心最后结果可以使用Consumer
+
+
+
+
+
+> RxJava使用场景：搭配Retrofit
+
+【2】06：59
