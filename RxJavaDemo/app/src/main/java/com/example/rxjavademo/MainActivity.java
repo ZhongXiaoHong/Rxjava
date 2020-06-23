@@ -73,38 +73,42 @@ public class MainActivity extends AppCompatActivity {
         };
     }
 
+        //   .compose(rxdu())//TODO 对以下线程切换封装
 
+    
     public void showImgByRx(View view) {
         ProgressDialog dialog = new ProgressDialog(this);
 
         Observable
-                .just(path2)
-                .map(new Function<String, Bitmap>() {
+                .just(path2)//TODO【2.分发事件】
+                .map(new Function<String, Bitmap>() {//TODO【3.卡片式拦截事件，将String转换成Bitmap】
                     @Override
                     public Bitmap apply(String s) throws Exception {
-                        return donet(s);
+                        return donet(s);//请求服务器
                     }
                 })
-
-                .compose(rxdu())//TODO 对以下线程切换封装
-//                .subscribeOn(Schedulers.io())//TODO 表示上面一节运行在io线程
-//                .observeOn(AndroidSchedulers.mainThread())//TODO  下面一节运行在MainThread
+                .subscribeOn(Schedulers.io())//TODO 表示上面一节运行在io线程
+                .observeOn(AndroidSchedulers.mainThread())//TODO  下面一节运行在MainThread
                 .subscribe(new Observer<Bitmap>() {
+
+                    //TODO 【1.预备分发事件】
                     @Override
                     public void onSubscribe(Disposable d) {
                         dialog.show();
                     }
 
+                    //TODO 【4.拿到事件】
                     @Override
                     public void onNext(Bitmap bitmap) {
                         img.setImageBitmap(bitmap);
                     }
 
+                    //出现错误
                     @Override
                     public void onError(Throwable e) {
 
                     }
-
+                    //TODO 【5.完成事件】
                     @Override
                     public void onComplete() {
                         dialog.dismiss();
