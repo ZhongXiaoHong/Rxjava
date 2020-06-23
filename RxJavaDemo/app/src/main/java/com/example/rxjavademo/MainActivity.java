@@ -40,12 +40,13 @@ public class MainActivity extends AppCompatActivity {
     public void showImg(View view) {
 
         ProgressDialog dialog = new ProgressDialog(this);
-        dialog.show();
+        dialog.show();//TODO 显示加载框
+
         new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
-                    Bitmap bitmap = donet(path);
+                    Bitmap bitmap = donet(path);//TODO 请求网络
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
@@ -75,7 +76,7 @@ public class MainActivity extends AppCompatActivity {
 
         //   .compose(rxdu())//TODO 对以下线程切换封装
 
-    
+
     public void showImgByRx(View view) {
         ProgressDialog dialog = new ProgressDialog(this);
 
