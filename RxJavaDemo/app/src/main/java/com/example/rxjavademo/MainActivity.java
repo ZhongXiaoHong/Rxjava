@@ -85,10 +85,9 @@ public class MainActivity extends AppCompatActivity {
                         return donet(s);
                     }
                 })
-
                 .compose(rxdu())//TODO 对以下线程切换封装
-//                .subscribeOn(Schedulers.io())//TODO 表示上面一节运行在io线程
-//                .observeOn(AndroidSchedulers.mainThread())//TODO  下面一节运行在MainThread
+//              .subscribeOn(Schedulers.io())//TODO 表示上面一节运行在io线程
+//              .observeOn(AndroidSchedulers.mainThread())//TODO  下面一节运行在MainThread
                 .subscribe(new Observer<Bitmap>() {
                     @Override
                     public void onSubscribe(Disposable d) {
