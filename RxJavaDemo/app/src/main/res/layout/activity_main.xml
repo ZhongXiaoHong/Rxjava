@@ -1,58 +1,126 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    tools:context=".MainActivity">
+    >
 
-    <TextView
-        android:layout_margin="20dp"
-        android:padding="10dp"
-        android:background="@color/colorPrimary"
-        android:onClick="showImg"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="传统下载图片"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        tools:context=".MainActivity">
 
-    <TextView
-        android:layout_margin="20dp"
-        android:padding="10dp"
-        android:background="@color/colorPrimary"
-        android:onClick="showImgByRx"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="RX下载图片"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        <TextView
+            android:layout_margin="20dp"
+            android:padding="10dp"
+            android:background="@color/colorPrimary"
+            android:onClick="showImg"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="传统下载图片"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
-    <ImageView
-        android:id="@+id/img"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
+        <TextView
+            android:layout_margin="20dp"
+            android:padding="10dp"
+            android:background="@color/colorPrimary"
+            android:onClick="showImgByRx"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="RX下载图片"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
-
-    <TextView
-        android:layout_margin="20dp"
-        android:padding="10dp"
-        android:background="@color/colorPrimary"
-        android:onClick="getProjectCategory"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="获取项目分类列表"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        <ImageView
+            android:id="@+id/img"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
 
 
+        <TextView
+            android:layout_margin="20dp"
+            android:padding="10dp"
+            android:background="@color/colorPrimary"
+            android:onClick="getProjectCategory"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="获取项目分类列表"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
 
-</LinearLayout>
+        <TextView
+            android:layout_margin="20dp"
+            android:padding="10dp"
+            android:background="@color/colorPrimary"
+            android:onClick="getProjectItem"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="获取某个项目"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+
+
+
+
+        <TextView
+            android:layout_margin="20dp"
+            android:padding="10dp"
+            android:background="@color/colorPrimary"
+            android:onClick="getProjectItemList"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="防抖获取多个项目"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+
+        <TextView
+            android:id="@+id/tvgetProjectItemList2"
+            android:layout_margin="20dp"
+            android:padding="10dp"
+            android:background="@color/colorPrimary"
+            android:onClick="getProjectItemList2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="解决嵌套：防抖获取多个项目"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+
+
+        <TextView
+            android:layout_margin="20dp"
+            android:padding="10dp"
+            android:background="@color/colorPrimary"
+            android:onClick="doOnnext"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="testDoOnnext"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+
+
+    </LinearLayout>
+</ScrollView>
