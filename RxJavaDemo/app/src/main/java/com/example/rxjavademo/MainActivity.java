@@ -424,42 +424,111 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
         )
-       //TODO 相当于ObservableCreat.map
-        .map(new Function<String, Integer>() {
+                //TODO 相当于ObservableCreat.map
+                .map(new Function<String, Integer>() {
 
-               @Override
-               public Integer apply(String s) throws Exception {
-                   return 10086;
-               }
-        })
-         //TODO 相当于ObservableMap.subscribe
-         .subscribe(
+                    @Override
+                    public Integer apply(String s) throws Exception {
+                        return 10086;
+                    }
+                })
+                //TODO 相当于ObservableMap.subscribe
+                .subscribe(
 
-                 //TODO 【自定义观察者】终点
-                new Observer<Integer>() {
-                  @Override
-                     public void onSubscribe(Disposable d) {
+                        //TODO 【自定义观察者】终点
+                        new Observer<Integer>() {
+                            @Override
+                            public void onSubscribe(Disposable d) {
 
-                  }
+                            }
 
-                  @Override
-                     public void onNext(Integer integer) {
+                            @Override
+                            public void onNext(Integer integer) {
 
-                     }
+                            }
 
-                  @Override
-                     public void onError(Throwable e) {
+                            @Override
+                            public void onError(Throwable e) {
 
-                     }
+                            }
 
-                   @Override
-                       public void onComplete() {
+                            @Override
+                            public void onComplete() {
 
-                     }
-                }
-         );
+                            }
+                        }
+                );
 
 
     }
 
+    Disposable resultDisposable;
+    public void testIntecept() {
+
+        //TODO ObservableCreat  自定义source传进去
+         resultDisposable = Observable.just("")
+                 .subscribe(new Consumer<String>() {
+                                @Override
+                                 public void accept(String s) throws Exception {
+
+                                  }
+                 }
+        );
+
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (resultDisposable!=null){
+            resultDisposable.dispose();
+        }
+    }
+
+
+    public void testSubcribeOn() {
+
+        //TODO ObservableCreat  自定义source传进去
+        Observable.create(
+
+                //TODO 【自定义source】
+                new ObservableOnSubscribe<String>() {
+                    @Override
+                    public void subscribe(ObservableEmitter<String> emitter) throws Exception {
+                        emitter.onNext("AAAAA");
+                    }
+                }
+        )
+        .subscribeOn(
+                Schedulers.io()
+        )
+
+        .subscribe(
+
+         //TODO 【自定义观察者】终点
+         new Observer<String>() {
+                            @Override
+                            public void onSubscribe(Disposable d) {
+
+                            }
+
+                            @Override
+                            public void onNext(String str) {
+
+                            }
+
+                            @Override
+                            public void onError(Throwable e) {
+
+                            }
+
+                            @Override
+                            public void onComplete() {
+
+                            }
+                        }
+         );
+
+
+    }
 }

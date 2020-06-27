@@ -414,3 +414,246 @@ downstream又是谁，downstream实际上就是actual ，只不过是换了一�
 上文说过Rxjava再执行的时候是U型，再加上这个代码定义初始化的从上往下，就整体形成了S型：
 
 ![6271553](image/6271553.png)
+
+
+
+
+
+> subscribeOn 原理分析
+
+subscribeOn是给写在subscribeOn这句代码以上的代码分配线程，
+
+以下面这份代码举例
+
+![6272145](image/6272145.png)
+
+首先看到Schedulers.io()：
+
+```java
+ public static Scheduler io() {
+     //TODO IO 是什么
+        return RxJavaPlugins.onIoScheduler(IO);
+    }
+```
+
+![6272215](image/6272215.png)
+
+IO 实际上就是一个Scheduler,由RxJavaPlugins.initIoScheduler(new IOTask())产生实际类型是IoScheduler，具体的产生过程不是终点，终点是这个**IO的类型是IOScheduler**
+
+到此执行
+
+```java
+subscribeOn(
+        Schedulers.io()
+)
+```
+
+就相当于
+
+```
+subscribeOn(
+        new IOScheduler()
+)
+```
+
+**粗略探究IOScheduler**，重点在于线程的调度，不在于IOScheduler，所以简单看下其内部结构
+
+![6272236](image/6272236.png)
+
+可以看到IOSchedulers内部是关联了线程池来处理任务的
+
+接下来真正看下**subscribeOn(new IOScheduler())**是如何调用的：
+
+```java
+    public final Observable<T> subscribeOn(Scheduler scheduler) {
+        ObjectHelper.requireNonNull(scheduler, "scheduler is null");
+        //TODO [1
+        return RxJavaPlugins.onAssembly(new ObservableSubscribeOn<T>(this, scheduler));
+    }
+```
+
+【TODO 1】
+
+直接new ObservableSubscribeOn<T>(this, scheduler)这个this是上游即ObservableCreat,scheduler是传进来的参数IOScheduler，
+
+```java
+   【ObservableSubscribeOn】
+   
+   public ObservableSubscribeOn(ObservableSource<T> source, Scheduler scheduler) {
+        super(source);
+        this.scheduler = scheduler;
+    }
+```
+
+**执行流程**
+
+一旦调用subscribe就会将终点传进去，然后会调用subscribeActual，本例中是调用ObservableSubscribeOn的subscribeActual
+
+```java
+【ObservableSubscribeOn】 
+
+public void subscribeActual(final Observer<? super T> observer) {
+		//TODO 2
+        final SubscribeOnObserver<T> parent = new SubscribeOnObserver<T>(observer);
+
+        observer.onSubscribe(parent);
+		//TODO 3
+        parent.setDisposable(scheduler.scheduleDirect(new SubscribeTask(parent)));
+    }
+```
+
+【TODO 2】
+
+SubscribeOnObserver<T> parent = new SubscribeOnObserver<T>(observer);开始对终点进行打包，形成新的包裹，把它取名叫包裹S——SubscribeOnObserver，observer是终点。
+
+
+
+【TODO 3】
+
+   调用 parent.setDisposable(scheduler.scheduleDirect(new SubscribeTask(parent)));这里拆分成下面三步理解：
+
+```java
+//TODO 4
+SubscribeTask task = new SubscribeTask(parent);
+//TODO 5
+Disposable disposeable = scheduler.scheduleDirect(task);
+//TODO 6
+ parent.setDisposable(disposeable);
+```
+
+【TODO 4】
+
+创建SubscribeTask时传入参数包裹S——SubscribeOnObserver：
+
+```java
+   final class SubscribeTask implements Runnable {
+       //TODO 7
+        private final SubscribeOnObserver<T> parent;
+
+        SubscribeTask(SubscribeOnObserver<T> parent) {
+            this.parent = parent;
+        }
+
+        @Override
+        public void run() {
+            //TODO  8
+            source.subscribe(parent);
+        }
+    }
+```
+
+从上面可以看到SubscribeTask本质上就是一个Runnable,只不过特殊一点的是它内部持有了“包裹S”——SubscribeOnObserver，见【TODO 7】，
+
+【TODO 8】
+
+这里的source 是谁？source 是SubscribeTask的外部类ObservableSubscribeOn的成员，实际上source 是指ObservableSubscribeOn的上游，再本例中指的是ObservableCreate，
+
+那么source.subscribe(parent);实际上就是将“包裹S”传到上游，只不过这里用Runnable包装一下
+
+【TODO 5】
+
+Disposable disposeable = scheduler.scheduleDirect(task);
+
+```java
+    public Disposable scheduleDirect(@NonNull Runnable run) {
+        return scheduleDirect(run, 0L, TimeUnit.NANOSECONDS);
+    }
+```
+
+```java
+    public Disposable scheduleDirect(@NonNull Runnable run, long delay, @NonNull TimeUnit unit) {
+         //TODO  9
+        final Worker w = createWorker();
+
+        //TODO  10
+        final Runnable decoratedRun = RxJavaPlugins.onSchedule(run);
+		 //TODO  11
+        DisposeTask task = new DisposeTask(decoratedRun, w);
+ 		//TODO  12
+        w.schedule(task, delay, unit);
+
+        return task;
+    }
+```
+
+【TODO 10】 【TODO 11】 是对Runnable作封装，Runna-->DisposeTask
+
+【TODO 9】createWorker 由子类实现，所以看IOScheduler对其实现：
+
+```java
+    public Worker createWorker() {
+        return new EventLoopWorker(pool.get());
+    }
+```
+
+所以 w.schedule(task, delay, unit)如下：
+
+```java
+public Disposable schedule(@NonNull Runnable action, long delayTime, @NonNull TimeUnit unit) {
+          //...
+			//TODO  13  转而调用scheduleActual
+            return threadWorker.scheduleActual(action, delayTime, unit, tasks);
+        }
+```
+
+```java
+    public ScheduledRunnable scheduleActual(final Runnable run, long delayTime, @NonNull TimeUnit unit, @Nullable DisposableContainer parent) {
+        
+        //TODO  继续对Runnable包装
+        Runnable decoratedRun = RxJavaPlugins.onSchedule(run);
+ 		//TODO  继续对Runnable包装
+        ScheduledRunnable sr = new ScheduledRunnable(decoratedRun, parent);
+
+        if (parent != null) {
+            if (!parent.add(sr)) {
+                return sr;
+            }
+        }
+
+        Future<?> f;
+ 
+            if (delayTime <= 0) {
+                //TODO14  重点~~~~  
+                f = executor.submit((Callable<Object>)sr);
+            } else {
+                           //TODO14  重点~~~~  
+                f = executor.schedule((Callable<Object>)sr, delayTime, unit);
+            }
+            sr.setFuture(f);
+        return sr;
+    }
+
+```
+
+【TODO 14】
+
+终于看到了将Runnable提交给线程池执行~~~~~~~，Runnab 一执行    【  TODO  8】就会执行
+
+
+
+所以执行流程可以用下图来表示：
+
+![6280014](image/6280014.png)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+> ObserOn原理分析
+
+
+
+
+
+> 自定义操作符
+
