@@ -413,47 +413,53 @@ public class MainActivity extends AppCompatActivity {
 
     public void test() {
 
-        //TODO 【1】创建一个被观察者
-        Observable observable = Observable.create(new ObservableOnSubscribe<String>() {
-            @Override
-            public void subscribe(ObservableEmitter<String> emitter) throws Exception {
-                emitter.onNext("AAAAA");
-            }
-        });
+        //TODO ObservableCreat  自定义source传进去
+        Observable.create(
 
-        observable.map(new Function() {
-            @Override
-            public Object apply(Object o) throws Exception {
-                return "null";
-            }
-        });
+                //TODO 【自定义source】
+                new ObservableOnSubscribe<String>() {
+                    @Override
+                    public void subscribe(ObservableEmitter<String> emitter) throws Exception {
+                        emitter.onNext("AAAAA");
+                    }
+                }
+        )
+       //TODO 相当于ObservableCreat.map
+        .map(new Function<String, Integer>() {
 
-        //TODO【2】 创建一个观察者
-        Observer observer = new Observer<String>() {
-            @Override
-            public void onSubscribe(Disposable d) {
+               @Override
+               public Integer apply(String s) throws Exception {
+                   return 10086;
+               }
+        })
+         //TODO 相当于ObservableMap.subscribe
+         .subscribe(
 
-            }
+                 //TODO 【自定义观察者】终点
+                new Observer<Integer>() {
+                  @Override
+                     public void onSubscribe(Disposable d) {
 
-            @Override
-            public void onNext(String s) {
+                  }
 
-            }
+                  @Override
+                     public void onNext(Integer integer) {
 
-            @Override
-            public void onError(Throwable e) {
+                     }
 
-            }
+                  @Override
+                     public void onError(Throwable e) {
 
-            @Override
-            public void onComplete() {
+                     }
 
-            }
-        };
+                   @Override
+                       public void onComplete() {
 
-        //TODO 【3】观察者订阅被观察者
-        observable.subscribe(observer);
+                     }
+                }
+         );
+
+
     }
-
 
 }
