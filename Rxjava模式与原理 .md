@@ -633,7 +633,7 @@ public Disposable schedule(@NonNull Runnable action, long delayTime, @NonNull Ti
 
 所以执行流程可以用下图来表示：
 
-![6280014](image/6280014.png)
+![6280014](image/6280019.png)
 
 
 
