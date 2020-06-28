@@ -35,8 +35,8 @@ public class NetManager {
         return INSTANCE;
     }
 
-   public  <S> S createService(Class<S> clazz) {
-        return retrofit.create(clazz);
+   public static <S> S createService(Class<S> clazz) {
+        return NetManager.getInstance().retrofit.create(clazz);
     }
 
 
