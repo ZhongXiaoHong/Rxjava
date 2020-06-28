@@ -1,5 +1,6 @@
 package com.example.rxjavademo;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.annotation.SuppressLint;
@@ -7,6 +8,8 @@ import android.app.ProgressDialog;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.os.SystemClock;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -24,6 +27,7 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
@@ -315,11 +319,30 @@ public class MainActivity extends AppCompatActivity {
 //                System.out.println("****accept*********"+strings.toString());
 //            }
 //        });
+        Observable.just(1,2,3,4)
+                .collect(new Callable<List<Integer>>() { //创建数据结构
+                    @Override
+                    public List<Integer> call() {
+                        return new ArrayList<Integer>();
+                    }
+                }, new BiConsumer<List<Integer>, Integer>() { //收集器
+                    @Override
+                    public void accept(@NonNull List<Integer> integers, @NonNull Integer integer) throws Exception {
+                        integers.add(integer);
+                    }
+                })
+                .subscribe(new Consumer<List<Integer>>() {
+                    @Override
+                    public void accept(@NonNull List<Integer> integers) throws Exception {
+
+                        System.out.println("****【" + 4 + "】*********" +integers.toString());
+                    }
+                });
+
 
 
         RxView.clicks(view).throttleFirst(2000, TimeUnit.MILLISECONDS)//TODO 这个再主线程执行
                 .observeOn(Schedulers.io())//TODO 以下代码执行网络请求 切换io线程执行
-
                 .flatMap(new Function<Object, ObservableSource<ProjectBean>>() {
                     @Override
                     public ObservableSource<ProjectBean> apply(Object o) throws Exception {
@@ -329,7 +352,6 @@ public class MainActivity extends AppCompatActivity {
                 .flatMap(new Function<ProjectBean, ObservableSource<ProjectBean.DataBean>>() {
                     @Override
                     public ObservableSource<ProjectBean.DataBean> apply(ProjectBean projectBean) throws Exception {
-
                         return Observable.fromIterable(projectBean.getData());//TODO 相当于for循环，分发每一个数据
                     }
                 })
@@ -339,7 +361,13 @@ public class MainActivity extends AppCompatActivity {
                         return NetManager.createService(WanAndroidApi.class).getItemsInCategory(1, dataBean.getId());
                     }
                 })
-                .collect(new Callable<ArrayList<ProjectItem>>() {
+                .subscribe(new Consumer<ProjectItem>() {
+                    @Override
+                    public void accept(ProjectItem projectItem) throws Exception {
+                        System.out.println(SystemClock.currentThreadTimeMillis()+"*************" +projectItem.toString());
+                    }
+                });
+  /*              .collect(new Callable<ArrayList<ProjectItem>>() {
                     @Override
                     public ArrayList<ProjectItem> call() throws Exception {
                         return new ArrayList<>();
@@ -348,6 +376,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void accept(ArrayList<ProjectItem> projectItems, ProjectItem projectItem) throws Exception {
                         projectItems.add(projectItem);
+
                     }
                 })
 //                .observeOn(AndroidSchedulers.mainThread())//TODO 以下代码需要更新UI,切换主线程执行
@@ -367,15 +396,24 @@ public class MainActivity extends AppCompatActivity {
 //                        System.out.println("*****onError********"+e.toString());
 //                    }
 //                });
-                .subscribe(new Consumer<ArrayList<ProjectItem>>() {
+                .subscribe(new SingleObserver<ArrayList<ProjectItem>>() {
                     @Override
-                    public void accept(ArrayList<ProjectItem> projectItems) throws Exception {
+                    public void onSubscribe(Disposable d) {
+                        System.out.println("***********");
+                    }
 
+                    @Override
+                    public void onSuccess(ArrayList<ProjectItem> projectItems) {
                         for (int i = 0; i < projectItems.size(); i++) {
                             System.out.println("****【" + i + "】*********" + projectItems.get(i).toString());
                         }
                     }
-                });
+
+                    @Override
+                    public void onError(Throwable e) {
+                        System.out.println("***********");
+                    }
+                });*/
     }
 
     //TODO 请求注册---->更新UI------->请求登录--------->更新UI
