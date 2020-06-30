@@ -39,7 +39,7 @@ Observable.just("")
 
 > 标准观察者模式
 
-![6241016](C:\Users\lx\Desktop\Rxjava\image\6241016.jpg)
+![6241016](image/6241016.jpg)
 
 **被观察者接口**
 

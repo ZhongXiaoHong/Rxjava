@@ -96,7 +96,7 @@
             android:layout_margin="20dp"
             android:padding="10dp"
             android:background="@color/colorPrimary"
-            android:onClick="getProjectItemList2"
+
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="解决嵌套：防抖获取多个项目"
